@@ -409,7 +409,7 @@ export default function Home() {
           <p className="text-sm text-[#a0a0a0] mb-6">
             {isAr ? "إقامة فاخرة في قلب دبي" : "Luxury living in Dubai"}
           </p>
-          <div className="flex justify-center gap-6 text-sm text-[#a0a0a0]">
+          <div className="flex justify-center gap-6 text-sm text-[#a0a0a0] mb-8">
             <a
               href="https://wa.me/971541610091"
               target="_blank"
@@ -420,6 +420,33 @@ export default function Home() {
             </a>
             <span className="text-[rgba(212,175,55,0.3)]">|</span>
             <span>© 2026</span>
+          </div>
+
+          {/* توقيع المطور */}
+          <div className="border-t border-[rgba(212,175,55,0.15)] pt-6 max-w-md mx-auto">
+            <p className="text-xs text-[#808080] mb-3 tracking-widest">
+              ◆ DEVELOPMENT ◆
+            </p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <span className="text-xs text-[#a0a0a0]">
+                {isAr ? "تم تنفيذ الموقع بواسطة" : "Website developed by"}
+              </span>
+              <span className="text-sm font-black gold-gradient">
+                {isAr ? "أحمد بطيح" : "Ahmed Betaih"}
+              </span>
+            </div>
+            <a
+              href="https://wa.me/971541610091"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full border border-[rgba(212,175,55,0.4)] text-[#d4af37] text-xs font-bold hover:bg-[#d4af37] hover:text-[#0a0a0a] transition-all group"
+            >
+              <span>📱</span>
+              <span className="tracking-wider">+971 54 161 0091</span>
+              <span className="text-[10px] opacity-70 group-hover:opacity-100">
+                {isAr ? "لطلب موقع مشابه" : "For a similar website"}
+              </span>
+            </a>
           </div>
         </div>
       </footer>

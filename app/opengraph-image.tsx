@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "الأماكن الفاخرة | Al Amakin Al Fakhira";
+export const alt = "Al Amakin Al Fakhira";
 export const size = {
   width: 1200,
   height: 630,
@@ -42,7 +42,7 @@ export default async function Image() {
 
         <div
           style={{
-            fontSize: "80px",
+            fontSize: "72px",
             fontWeight: "900",
             background:
               "linear-gradient(135deg, #d4af37 0%, #f4d47a 50%, #d4af37 100%)",
@@ -52,18 +52,18 @@ export default async function Image() {
             textAlign: "center",
           }}
         >
-          الأماكن الفاخرة
+          AL AMAKIN AL FAKHIRA
         </div>
 
         <div
           style={{
-            fontSize: "32px",
+            fontSize: "36px",
             color: "#a0a0a0",
-            letterSpacing: "8px",
+            letterSpacing: "4px",
             marginBottom: "30px",
           }}
         >
-          AL AMAKIN AL FAKHIRA
+          ★ DUBAI ★
         </div>
 
         <div
@@ -74,7 +74,7 @@ export default async function Image() {
             marginBottom: "10px",
           }}
         >
-          سكنات فاخرة للإيجار في دبي
+          Luxury Rentals in Dubai
         </div>
 
         <div
@@ -84,7 +84,7 @@ export default async function Image() {
             marginTop: "20px",
           }}
         >
-          سراير • بارتيشنات • غرف كاملة
+          Beds • Partitions • Full Rooms
         </div>
       </div>
     ),

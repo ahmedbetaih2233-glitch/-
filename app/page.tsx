@@ -1,18 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { properties } from "./data/properties";
+import { supabase } from "./lib/supabase";
+
+type Property = {
+  id: number;
+  title_ar: string;
+  title_en: string;
+  area_id: number;
+  type: string;
+  type_ar: string;
+  type_en: string;
+  gender: string;
+  gender_ar: string;
+  gender_en: string;
+  price_aed: number;
+  images: string[];
+  is_active: boolean;
+};
+
+type Area = {
+  id: number;
+  name_ar: string;
+  name_en: string;
+};
 
 export default function Home() {
   const [lang, setLang] = useState<"ar" | "en">("ar");
   const [selectedArea, setSelectedArea] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const isAr = lang === "ar";
 
-  const areas = ["all", ...Array.from(new Set(properties.map((p) => p.area_ar)))];
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    const [propsRes, areasRes] = await Promise.all([
+      supabase
+        .from("properties")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false }),
+      supabase.from("areas").select("*").order("id"),
+    ]);
+
+    setProperties(propsRes.data || []);
+    setAreas(areasRes.data || []);
+    setLoading(false);
+  };
+
+  const getAreaName = (areaId: number) => {
+    const area = areas.find((a) => a.id === areaId);
+    if (!area) return "";
+    return isAr ? area.name_ar : area.name_en;
+  };
+
   const types = [
     { value: "all", ar: "الكل", en: "All" },
     { value: "single_bed", ar: "سرير سنجل", en: "Single Bed" },
@@ -27,7 +77,7 @@ export default function Home() {
   ];
 
   const filtered = properties.filter((p) => {
-    const areaMatch = selectedArea === "all" || p.area_ar === selectedArea;
+    const areaMatch = selectedArea === "all" || p.area_id === Number(selectedArea);
     const typeMatch = selectedType === "all" || p.type === selectedType;
     const genderMatch =
       selectedGender === "all" || p.gender === selectedGender || p.gender === "any";
@@ -62,7 +112,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ===== Hero Section ===== */}
+      {/* ===== Hero ===== */}
       <section className="relative py-20 px-6 text-center border-b border-[rgba(212,175,55,0.15)]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-block px-4 py-1 rounded-full border border-[rgba(212,175,55,0.4)] text-[#d4af37] text-xs mb-6 tracking-wider">
@@ -81,7 +131,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== الفلاتر ===== */}
+      {/* ===== Filters ===== */}
       <section className="max-w-7xl mx-auto px-6 py-10">
         <div className="bg-[#141414] border border-[rgba(212,175,55,0.25)] rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-4 gold-glow">
           <div>
@@ -93,9 +143,12 @@ export default function Home() {
               onChange={(e) => setSelectedArea(e.target.value)}
               className="w-full rounded-lg p-3"
             >
+              <option value="all">
+                {isAr ? "كل المناطق" : "All Areas"}
+              </option>
               {areas.map((a) => (
-                <option key={a} value={a}>
-                  {a === "all" ? (isAr ? "كل المناطق" : "All Areas") : a}
+                <option key={a.id} value={a.id}>
+                  {isAr ? a.name_ar : a.name_en}
                 </option>
               ))}
             </select>
@@ -136,66 +189,72 @@ export default function Home() {
           </div>
         </div>
 
-        {/* عدد النتائج */}
         <p className="text-sm text-[#a0a0a0] mt-6 mb-4">
           {isAr ? "عدد النتائج: " : "Results: "}
           <span className="text-[#d4af37] font-bold">{filtered.length}</span>
         </p>
 
-        {/* ===== بطاقات السكنات ===== */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((p) => (
-            <Link
-              key={p.id}
-              href={"/property/" + p.id}
-              className="group bg-[#141414] border border-[rgba(212,175,55,0.25)] rounded-2xl overflow-hidden hover:border-[#d4af37] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:-translate-y-1"
-            >
-              <div className="relative overflow-hidden">
-                <img
-                  src={p.image}
-                  alt={isAr ? p.title_ar : p.title_en}
-                  className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
-              </div>
+        {loading && (
+          <p className="text-center text-[#a0a0a0] py-16">جاري التحميل...</p>
+        )}
 
-              <div className="p-5">
-                <div className="flex gap-2 mb-3">
-                  <span className="bg-[#d4af37] text-[#0a0a0a] text-xs px-3 py-1 rounded-full font-bold">
-                    {isAr ? p.type_ar : p.type_en}
-                  </span>
-                  <span className="border border-[#d4af37] text-[#d4af37] text-xs px-3 py-1 rounded-full">
-                    {isAr ? p.gender_ar : p.gender_en}
-                  </span>
-                </div>
-
-                <h3 className="font-bold text-lg text-white mb-1">
-                  {isAr ? p.title_ar : p.title_en}
-                </h3>
-                <p className="text-sm text-[#a0a0a0] mb-4">
-                  📍 {isAr ? p.area_ar : p.area_en}
-                </p>
-
-                <div className="flex items-end justify-between border-t border-[rgba(212,175,55,0.15)] pt-3">
-                  <div>
-                    <p className="text-xs text-[#a0a0a0]">{isAr ? "شهرياً" : "/ month"}</p>
-                    <p className="text-2xl font-black gold-gradient">
-                      {p.price_aed} <span className="text-sm">AED</span>
-                    </p>
-                  </div>
-                  <span className="text-[#d4af37] group-hover:translate-x-[-5px] transition-transform">
-                    ←
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="text-center text-[#a0a0a0] py-16 text-lg">
-            {isAr ? "لا توجد نتائج مطابقة للفلاتر" : "No results found"}
+            {isAr ? "لا توجد نتائج مطابقة" : "No results found"}
           </p>
+        )}
+
+        {!loading && filtered.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((p) => (
+              <Link
+                key={p.id}
+                href={"/property/" + p.id}
+                className="group bg-[#141414] border border-[rgba(212,175,55,0.25)] rounded-2xl overflow-hidden hover:border-[#d4af37] transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:-translate-y-1"
+              >
+                <div className="relative overflow-hidden">
+                  <img
+                    src={p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"}
+                    alt={isAr ? p.title_ar : p.title_en}
+                    className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+                </div>
+
+                <div className="p-5">
+                  <div className="flex gap-2 mb-3">
+                    <span className="bg-[#d4af37] text-[#0a0a0a] text-xs px-3 py-1 rounded-full font-bold">
+                      {isAr ? p.type_ar : p.type_en}
+                    </span>
+                    <span className="border border-[#d4af37] text-[#d4af37] text-xs px-3 py-1 rounded-full">
+                      {isAr ? p.gender_ar : p.gender_en}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-lg text-white mb-1">
+                    {isAr ? p.title_ar : p.title_en}
+                  </h3>
+                  <p className="text-sm text-[#a0a0a0] mb-4">
+                    📍 {getAreaName(p.area_id)}
+                  </p>
+
+                  <div className="flex items-end justify-between border-t border-[rgba(212,175,55,0.15)] pt-3">
+                    <div>
+                      <p className="text-xs text-[#a0a0a0]">
+                        {isAr ? "شهرياً" : "/ month"}
+                      </p>
+                      <p className="text-2xl font-black gold-gradient">
+                        {p.price_aed} <span className="text-sm">AED</span>
+                      </p>
+                    </div>
+                    <span className="text-[#d4af37] group-hover:translate-x-[-5px] transition-transform">
+                      ←
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         )}
       </section>
 
@@ -221,7 +280,7 @@ export default function Home() {
               واتساب
             </a>
             <span className="text-[rgba(212,175,55,0.3)]">|</span>
-            <span>©️ 2026</span>
+            <span>© 2026</span>
           </div>
         </div>
       </footer>

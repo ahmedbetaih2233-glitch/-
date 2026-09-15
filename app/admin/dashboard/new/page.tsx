@@ -36,6 +36,7 @@ export default function NewProperty() {
     amenities_ar: [] as string[],
     amenities_en: [] as string[],
     images: [] as string[],
+    map_url: "",
   });
 
   const allAmenities = [
@@ -212,6 +213,7 @@ export default function NewProperty() {
       amenities_ar: form.amenities_ar,
       amenities_en: form.amenities_en,
       images: form.images,
+      map_url: form.map_url,
       is_active: true,
     });
 
@@ -366,7 +368,7 @@ export default function NewProperty() {
           </div>
 
           <div className="bg-[#141414] border border-[rgba(212,175,55,0.25)] rounded-2xl p-6">
-            <h2 className="text-lg font-bold gold-gradient mb-4">الوصف</h2>
+            <h2 className="text-lg font-bold gold-gradient mb-4">الوصف والموقع</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs text-[#d4af37] mb-2">
@@ -395,6 +397,24 @@ export default function NewProperty() {
                   className="w-full rounded-lg p-3"
                   placeholder="بناية الختال - بجوار حديقة أبو هيل"
                 />
+              </div>
+              <div>
+                <label className="block text-xs text-[#d4af37] mb-2">
+                  📍 رابط الموقع على Google Maps
+                </label>
+                <input
+                  type="url"
+                  value={form.map_url}
+                  onChange={(e) =>
+                    setForm({ ...form, map_url: e.target.value })
+                  }
+                  placeholder="https://maps.app.goo.gl/..."
+                  className="w-full rounded-lg p-3"
+                  dir="ltr"
+                />
+                <p className="text-xs text-[#808080] mt-2">
+                  اذهب لـ Google Maps → ابحث عن المكان → Share → Copy link → الصق هنا
+                </p>
               </div>
             </div>
           </div>
